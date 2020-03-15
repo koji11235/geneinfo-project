@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gene Info</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css";; rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="../static/js/Plugin.Errorbars.js"></script>
+    <script src="../static/js/utils.js"></script>
+    <script src="../static/js/chartjs-plugin-annotation.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <!-- 検索フォーム -->
+    <div class="row search-form">
+        <div class="col-md-12">
+            <h1>Gene Info</h1>
+            <p>Gene IDを入れると、遺伝子の情報が一覧できます。</p>
+            <form class="form-inline" method="get" action="/result">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="exampleInputEmail1" name="geneid" placeholder="Entrez Gene ID">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% if geneid %}
+<!-- 取得してきた情報 -->
+
+    <h1 class="my-3 ml-3">{{Symbol}}</h1>
+    <h3 class="my-3 ml-3">  {{fullname}}</h3>
+    <h2 class="my-3 ml-3 section-title">Basic Information</h2>
+    <div class="col-5 ml-3">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td>Official Symbol</td>
+                    <td>{{Symbol}}</td>
+                </tr>
+                <tr>
+                    <td>Official Full Name</td>
+                    <td>{{fullname}}</td>
+                </tr>
+
+                <tr>
+                    <td>Aliases</td>
+                    <td>{{Aliases}}</td>
+                </tr>
+            </tbody>
+        
+        <table class="table table-striped">
+            <tbody>
+                <thead>
+                    <tr>
+                        <th>Data Base</th>
+                        <th>ID</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                
+                <tr>
+                    <td>Entrez Gene ID</td>
+                    <td>{{geneid}}</td>
+                    <td><a href="https://www.ncbi.nlm.nih.gov/gene/{{geneid}}">https://www.ncbi.nlm.nih.gov/gene/{{geneid}}</a></td>
+                </tr>
+
+                <tr>
+                    <td>Homogene ID</td>
+                    <td>{{homologeneid}}</td>
+                    <td><a href="https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}">https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}</a></td>
+                </tr>
+
+                <tr>
+                    <td>Uniprot</td>
+                    <td>{{uniprotid}}</td>
+                    <td><a href="https://www.uniprot.org/uniprot/{{uniprotid}}">https://www.uniprot.org/uniprot/{{uniprotid}}</a></td>
+                </tr>
+
+                <tr>
+                    <td>OMIM</td>
+                    <td>{{OMIM_ID}}</td>
+                    <td><a href="{{OMIM_link}}">{{OMIM_link}}</a></td>                    
+                </tr>
+
+                <tr>
+                    <td>MGI</td>
+                    <td>{{mgi_acc_id}}</td>
+                    <td><a href="http://www.informatics.jax.org/marker/{{homologeneid}}">http://www.informatics.jax.org/marker/{{homologeneid}}</a></td>
+                </tr>
+
+            </tbody>
+        
+        </table>
+        <h2 class="my-3 ml-3 section-title">Summary</h2>
+            <h3 class="my-3 ml-3">from Uniprot</h3>
+            <p>{{function}}</p>
+    </div>
+
+    <h2 class="my-3 ml-3 section-title">Homology</h2>
+    <div class="col-5 ml-3">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Human vs</th>
+                    <th>Protein</th>
+                    <th>DNA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mouse</td>
+                    <td>{{Identity_Protein_Mouse}}%</td>
+                    <td>{{Identity_DNA_Mouse}}%</td>
+                </tr>
+                <tr>
+                    <td>Rat</td>
+                    <td>{{Identity_Protein_Rat}}%</td>
+                    <td>{{Identity_DNA_Rat}}%</td>
+                </tr>
+            </tbody>
+        </table>
+        
+    </div>
+
+    <! -- BaseSpace -->
+    <! -- Cell type figure -->
+    <h2 class="my-3 ml-3 section-title">Gene Expression</h2>
+    <h3 class="my-3 ml-3">from BaseSpace</h3>
+    
+    {%for param_name, BaseSpase_result_df in BaseSpase_result.items() %}
+        <div class="col-5 ml-3">
+                <canvas id={{param_name}} width="400" height="400"></canvas>
+        </div>
+        <! -- Cell type figure -->
+        <script>
+            var ctx = document.getElementById("{{param_name}}").getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: [{%for index, row in BaseSpase_result_df.iterrows() %}
+                                "{{row["conceptLabel"]}}",
+                            {% endfor %}],
+                    datasets: [{
+                        label: '{{" ".join(param_name.split("_"))}} Expression Level',
+                        data: [{%for index, row in BaseSpase_result_df.iterrows() %}
+                                {{row["tissueExpression"]}},
+                            {% endfor %}
+                        ],
+                        backgroundColor: [
+                            {%for i in range(BaseSpase_result_len) %}
+                                'rgba(54, 162, 235, 0.2)',
+                            {% endfor %}
+                        ],
+                        borderColor: [
+                            {%for i in range(BaseSpase_result_len) %}
+                                'rgba(54, 162, 235, 1)',
+                            {% endfor %}
+                        ],
+                        borderWidth: 1,
+                        errorBars: {
+                            {%for index, row in BaseSpase_result_df.iterrows() %}
+                                "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
+                            {% endfor %}
+                        }
+                    }],
+                },
+                options: {
+                    plugins: {
+                        chartJsPluginBarchartBackground: {
+                            color: '#eeeeee'
+                        }, chartJsPluginErrorBars: {
+                            //color: '#666'
+                            width: '30%'
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            position:"top",
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }],
+                        yAxes:[{
+                            barPercentage: 0.5,
+                            ticks: {
+                            fontSize: 18,
+                            }
+                        }]
+                    },
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: '{{" ".join(param_name.split("_"))}} Expression Level',
+                        fontSize: 24,
+                        fontWeight:'normal',
+                        fontStyle:'normal',
+                        fontColor:'rgb(51,51,51)',
+                    },
+                    legend: {
+                        fontWeight:'normal',
+                        display: false,
+                        <!--fontSize: 22,-->
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: true
+                    },
+                    annotation: {
+                        annotations: [{
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x-axis-0',
+                            value: {{BaseSpase_result_df.iloc[0,3]}},
+                            borderColor: 'rgba(255, 159, 64, 0.5)',
+                            borderWidth: 4,
+                            label: {
+                                position: 'bottom',
+                                xAdjust: -75,
+                                yAdjust: 0,
+                                enabled: true,
+                                backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                content: 'Control Expression: {{ BaseSpase_result_df.iloc[0,3]|float|round(1) }}'
+                            }
+                        }]
+                    }
+                }
+            });
+        </script>
+    {% endfor %}
+
+
+    <h2 class="my-3 ml-3 section-title">GWAS</h2>
+    <h3 class="my-3 ml-3">from GWAS Catalog</h3>
+    <div class="col-5 ml-3">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>RSID</th>
+                    <th>PubMed ID</th>
+                    <th>Reported Trait</th>
+                    <th>Study Accession</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index,row in GWAS_catalog.iterrows() %}
+                <tr>
+                    <td><a href="https://www.ebi.ac.uk/gwas/variants/{{row["rsid"]}}">{{row["rsid"]}}</a></td>
+                    <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row["PubmedID"]}}">{{row["PubmedID"]}}</a></td>
+                    <td>{{row["Reported_Trait"]}}</td>
+                    <td><a href="https://www.ebi.ac.uk/gwas/studies/{{row["Study_Accession"]}}">{{row["Study_Accession"]}}</a></td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- {{ GWAS_catalog|safe }}-->
+        {% if is_gwas_truncated %}
+        <h3>Caution! Results are Truncated!</h3>
+        <p>There are so many GWAS results. Please search {{Symbol}} in GWAS for more results. </p>
+        {% endif %}
+    </div>
+
+
+    <h2 class="my-3 ml-3 section-title">Mouse Model</h2>
+    <h3 class="my-3 ml-3">from MGI</h3>
+    <div class="col-5 ml-3">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Allele Composition</th>
+                    <th>Phenotype</th>
+                    <th>PubMed ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in MGI_table %}
+                <tr>
+                    <td>{{row[0]}}</td>
+                    <td><a href="http://www.informatics.jax.org/vocab/mp_ontology/{{row[1]}}">{{row[2]}}</a></td>
+                    <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row[3]}}">{{row[3]}}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+</div>
+</body>
+</html>

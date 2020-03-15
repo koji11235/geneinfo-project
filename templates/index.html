@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>GeneInfo JT ver2.0</title>
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="../static/css/style.css">
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="../static/js/Plugin.Errorbars.js"></script>
+    <script src="../static/js/utils.js"></script>
+    <script src="../static/js/chartjs-plugin-annotation.js"></script>
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    <script>
+        $(function() {
+          $('#content').scrollspy({offset:$(window).height() / 2});
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>GeneInfo</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <p>You can retrieve Gene information by Entrez Gene ID.</p>
+                <li>
+                    <a href="#ContentsSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Contents</a>
+                    <ul class="collapse list-unstyled" id="ContentsSubmenu">
+                        <li>
+                            <a href="#BasicInformation">Basic Information</a>
+                        </li>
+                        <li>
+                            <a href="#Homology">Homology</a>
+                        </li>
+                        <li>
+                            <a href="#GeneExpression">Gene Expression</a>
+                        </li>
+                        <li>
+                            <a href="#GWAS">GWAS</a>
+                        </li>
+                        <li>
+                            <a href="#MouseModel">Mouse Model</a>
+                        </li>
+                    </ul>
+                </li>
+            
+                
+                <li>
+                    <a href="#ReferenceSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reference</a>
+                    <ul class="collapse list-unstyled" id="ReferenceSubmenu">
+                        <li>
+                            <a href="http://biogps.org">BioGPS</a>
+                        </li>
+                        <li>
+                            <a href="https://www.uniprot.org">Uniprot</a>
+                        </li>
+                        <li>
+                            <a href="https://www.ncbi.nlm.nih.gov/homologene/">NCBI Homologene</a>
+                        </li>
+                        <li>
+                            <a href="https://japantobacco.ussc.informatics.illumina.com">BaseSpace</a>
+                        </li>
+                        <li>
+                            <a href="https://www.ebi.ac.uk/gwas/">GWAS catalog</a>
+                        </li>
+                        <li>
+                            <a href="http://www.informatics.jax.org/">MGI</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">About</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                        <span>Toggle Sidebar</span>
+                    </button>
+                    <!-- 
+                    <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Page</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Page</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Page</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Page</a>
+                            </li>
+                        </ul>
+                    </div>
+                    -->
+                </div>
+            </nav>
+
+            <!-- 検索フォーム -->
+            <form class="header-form" method="get" action="/result">
+                <div class="input-group">
+                    <!--
+                        <div class="input-group-prepend">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#">Symbol</a>
+                            <a class="dropdown-item" href="#">Entrez Gene ID</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </div>
+                    -->
+                    <input type="text" class="form-control" name="geneid" placeholder="Entrez Gene ID" aria-label="" aria-describedby="basic-addon1">
+                    <div class= "input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+            <!-- 取得してきた情報 -->
+            {% if geneid %}
+                <p></p>
+                <h1>{{Symbol}}</h1>
+                <h3>  {{fullname}}</h3>
+                <h2 class=" section-title" id ="BasicInformation">Basic Information</h2>
+                <div >
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Official Symbol</td>
+                                <td>{{Symbol}}</td>
+                            </tr>
+                            <tr>
+                                <td>Official Full Name</td>
+                                <td>{{fullname}}</td>
+                            </tr>
+
+                            <tr>
+                                <td>Aliases</td>
+                                <td>{{Aliases}}</td>
+                            </tr>
+                        </tbody>
+                    
+                    <table class="table table-striped">
+                        <tbody>
+                            <thead>
+                                <tr>
+                                    <th>Data Base</th>
+                                    <th>ID</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            
+                            <tr>
+                                <td>Entrez Gene ID</td>
+                                <td>{{geneid}}</td>
+                                <td><a href="https://www.ncbi.nlm.nih.gov/gene/{{geneid}}">https://www.ncbi.nlm.nih.gov/gene/{{geneid}}</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Homogene ID</td>
+                                <td>{{homologeneid}}</td>
+                                <td><a href="https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}">https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Uniprot</td>
+                                <td>{{uniprotid}}</td>
+                                <td><a href="https://www.uniprot.org/uniprot/{{uniprotid}}">https://www.uniprot.org/uniprot/{{uniprotid}}</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>OMIM</td>
+                                <td>{{OMIM_ID}}</td>
+                                <td><a href="{{OMIM_link}}">{{OMIM_link}}</a></td>                    
+                            </tr>
+
+                            <tr>
+                                <td>MGI</td>
+                                <td>{{mgi_acc_id}}</td>
+                                <td><a href="http://www.informatics.jax.org/marker/{{homologeneid}}">http://www.informatics.jax.org/marker/{{homologeneid}}</a></td>
+                            </tr>
+
+                        </tbody>
+                    
+                    </table>
+                    <h2 class="section-title">Summary</h2>
+                    <p>from Uniprot</p>
+                    <p>{{function}}</p>
+                </div>
+
+                <h2 class="section-title" id ="Homology">Homology</h2>
+                <p>from NCBI Homologene</p>
+                <div >
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Human vs</th>
+                                <th>Protein</th>
+                                <th>DNA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mouse</td>
+                                <td>{{Identity_Protein_Mouse}}%</td>
+                                <td>{{Identity_DNA_Mouse}}%</td>
+                            </tr>
+                            <tr>
+                                <td>Rat</td>
+                                <td>{{Identity_Protein_Rat}}%</td>
+                                <td>{{Identity_DNA_Rat}}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+
+                <! -- BaseSpace -->
+                <h2 class="section-title" id="GeneExpression">Gene Expression</h2>
+                <p>from BaseSpace</p>
+                
+                {%for param_name, BaseSpase_result_df in BaseSpase_result.items() %}
+                    {% if BaseSpase_result_df.empty %}
+                    <p>BaseSpace Body Atlas doesn't support your query term</p>
+                    {% else %}
+                    <div >
+                            <canvas id={{param_name}} width="400" height="400"></canvas>
+                    </div>
+                    <! -- Cell type figure -->
+                    <script>
+                        var ctx = document.getElementById("{{param_name}}").getContext('2d');
+                        var myChart = new Chart(ctx, {
+                            type: 'horizontalBar',
+                            data: {
+                                labels: [{%for index, row in BaseSpase_result_df.iterrows() %}
+                                            "{{row["conceptLabel"]}}",
+                                        {% endfor %}],
+                                datasets: [{
+                                    label: '{{" ".join(param_name.split("_"))}} Expression Level',
+                                    data: [{%for index, row in BaseSpase_result_df.iterrows() %}
+                                            {{row["tissueExpression"]}},
+                                        {% endfor %}
+                                    ],
+                                    backgroundColor: [
+                                        {%for i in range(BaseSpase_result_len) %}
+                                            'rgba(54, 162, 235, 0.2)',
+                                        {% endfor %}
+                                    ],
+                                    borderColor: [
+                                        {%for i in range(BaseSpase_result_len) %}
+                                            'rgba(54, 162, 235, 1)',
+                                        {% endfor %}
+                                    ],
+                                    borderWidth: 1,
+                                    errorBars: {
+                                        {%for index, row in BaseSpase_result_df.iterrows() %}
+                                            "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
+                                        {% endfor %}
+                                    }
+                                }],
+                            },
+                            options: {
+                                plugins: {
+                                    chartJsPluginBarchartBackground: {
+                                        color: '#eeeeee'
+                                    }, chartJsPluginErrorBars: {
+                                        //color: '#666'
+                                        width: '30%'
+                                    }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        position:"top",
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }],
+                                    yAxes:[{
+                                        barPercentage: 0.5,
+                                        ticks: {
+                                        fontSize: 18,
+                                        }
+                                    }]
+                                },
+                                responsive: true,
+                                title: {
+                                    display: true,
+                                    text: '{{" ".join(param_name.split("_"))}} Expression Level',
+                                    fontSize: 24,
+                                    fontWeight:'normal',
+                                    fontStyle:'normal',
+                                    fontColor:'rgb(51,51,51)',
+                                },
+                                legend: {
+                                    fontWeight:'normal',
+                                    display: false,
+                                    <!--fontSize: 22,-->
+                                },
+                                tooltips: {
+                                    mode: 'index',
+                                    intersect: true
+                                },
+                                annotation: {
+                                    annotations: [{
+                                        type: 'line',
+                                        mode: 'vertical',
+                                        scaleID: 'x-axis-0',
+                                        value: {{BaseSpase_result_df.iloc[0,3]}},
+                                        borderColor: 'rgba(255, 159, 64, 0.5)',
+                                        borderWidth: 4,
+                                        label: {
+                                            position: 'bottom',
+                                            xAdjust: -75,
+                                            yAdjust: 0,
+                                            enabled: true,
+                                            backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                            content: 'Control Expression: {{ BaseSpase_result_df.iloc[0,3]|float|round(1) }}'
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                    </script>
+                    
+                    {% endif %}
+                {% endfor %}
+
+
+                <h2 class=" section-title" id="GWAS">GWAS</h2>
+                <p>from GWAS Catalog</p>
+                <div >
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>RSID</th>
+                                <th>PubMed ID</th>
+                                <th>Reported Trait</th>
+                                <th>Study Accession</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index,row in GWAS_catalog.iterrows() %}
+                            <tr>
+                                <td><a href="https://www.ebi.ac.uk/gwas/variants/{{row["rsid"]}}">{{row["rsid"]}}</a></td>
+                                <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row["PubmedID"]}}">{{row["PubmedID"]}}</a></td>
+                                <td>{{row["Reported_Trait"]}}</td>
+                                <td><a href="https://www.ebi.ac.uk/gwas/studies/{{row["Study_Accession"]}}">{{row["Study_Accession"]}}</a></td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if serverError_occured_GWAS %}
+                    <p>GWAS catalog API Server may be down right now. </p>
+                    <p>Please visit <a href="https://www.ebi.ac.uk/gwas/search?query={{Symbol}}">https://www.ebi.ac.uk/gwas/search?query={{Symbol}}</a></p>
+                    {% endif %}
+                    <!-- {{ GWAS_catalog|safe }}-->
+                    {% if is_gwas_truncated %}
+                    <h3>Caution! Results are Truncated!</h3>
+                    <p>There are so many GWAS results. Please search {{Symbol}} in GWAS for more results. </p>
+                    {% endif %}
+                </div>
+
+
+                <h2 class=" section-title" id="MouseModel">Mouse Model</h2>
+                <p>from MGI</p>
+                <div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Allele Composition</th>
+                                <th>Phenotype</th>
+                                <th>PubMed ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in MGI_table %}
+                            <tr>
+                                <td>{{row[0]}}</td>
+                                <td><a href="http://www.informatics.jax.org/vocab/mp_ontology/{{row[1]}}">{{row[2]}}</a></td>
+                                <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row[3]}}">{{row[3]}}</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+            
+        </div>
+    </div>
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#sidebar").mCustomScrollbar({
+                theme: "minimal"
+            });
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar, #content').toggleClass('active');
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+            });
+        });
+    </script>
+</body>
+
+</html>
