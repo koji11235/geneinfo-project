@@ -74,7 +74,7 @@ class GeneInfo(object):
 
         self.symbol = mygene_response['symbol']
         self.fullname = mygene_response['name']
-        self.aliases = mygene_response['alias']
+        self.aliases = mygene_response['alias'] if type(mygene_response['alias']) is list else [mygene_response['alias']]
         self.ids['ensembl'] = mygene_response['ensembl']['gene']
 
         self.ids['uniprot'] = mygene_response['uniprot']['Swiss-Prot']
