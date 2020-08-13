@@ -22,6 +22,15 @@
     <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    
+    <!-- GXA -->
+    <script language="JavaScript" type="text/javascript" src="https://www.ebi.ac.uk/gxa/resources/js/lib/babel-polyfill.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="https://www.ebi.ac.uk/gxa/resources/js/lib/fetch-polyfill.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="https://www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
+    <script language="JavaScript" type="text/javascript" src="https://www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasHeatmapHighcharts.bundle.js"></script>
+    
+    
+    
     <script>
         $(function() {
           $('#content').scrollspy({offset:$(window).height() / 2});
@@ -47,16 +56,22 @@
                             <a href="#BasicInformation">Basic Information</a>
                         </li>
                         <li>
+                            <a href="#Domain">Domain</a>
+                        </li>
+                        <li>
                             <a href="#Homology">Homology</a>
                         </li>
                         <li>
                             <a href="#GeneExpression">Gene Expression</a>
                         </li>
                         <li>
-                            <a href="#GWAS">GWAS</a>
+                            <a href="#opentarget_genetic_association">Genetic Association</a>
                         </li>
                         <li>
                             <a href="#MouseModel">Mouse Model</a>
+                        </li>
+                        <li>
+                            <a href="#Drugs">Drugs</a>
                         </li>
                     </ul>
                 </li>
@@ -66,7 +81,7 @@
                     <a href="#ReferenceSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reference</a>
                     <ul class="collapse list-unstyled" id="ReferenceSubmenu">
                         <li>
-                            <a href="http://biogps.org">BioGPS</a>
+                            <a href="https://mygene.info/">MyGene.info</a>
                         </li>
                         <li>
                             <a href="https://www.uniprot.org">Uniprot</a>
@@ -75,13 +90,16 @@
                             <a href="https://www.ncbi.nlm.nih.gov/homologene/">NCBI Homologene</a>
                         </li>
                         <li>
+                            <a href="https://www.ebi.ac.uk/gxa/home">Expression Atlas</a>
+                        </li>
+                        <li>
                             <a href="https://japantobacco.ussc.informatics.illumina.com">BaseSpace</a>
                         </li>
                         <li>
-                            <a href="https://www.ebi.ac.uk/gwas/">GWAS catalog</a>
+                            <a href="http://www.informatics.jax.org/">MGI</a>
                         </li>
                         <li>
-                            <a href="http://www.informatics.jax.org/">MGI</a>
+                            <a href="https://www.targetvalidation.org/">Open Target Platform</a>
                         </li>
                     </ul>
                 </li>
@@ -99,7 +117,6 @@
 
                     <button type="button" id="sidebarCollapse" class="btn btn-info">
                         <i class="fas fa-align-left"></i>
-                        <span>Toggle Sidebar</span>
                     </button>
                     <!-- 
                     <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,286 +156,575 @@
                         </div>
                     </div>
                     -->
-                    <input type="text" class="form-control" name="geneid" placeholder="Entrez Gene ID" aria-label="" aria-describedby="basic-addon1">
+                    <input type="text" class="form-control" name="entrez_id" placeholder="Entrez Gene ID" aria-label="" aria-describedby="basic-addon1">
                     <div class= "input-group-append">
                         <button type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </div>
             </form>
             <!-- 取得してきた情報 -->
-            {% if geneid %}
-                <p></p>
-                <h1>{{Symbol}}</h1>
-                <h3>  {{fullname}}</h3>
-                <h2 class=" section-title" id ="BasicInformation">Basic Information</h2>
-                <div >
-                    <table class="table table-striped">
-                        <tbody>
-                            <tr>
-                                <td>Official Symbol</td>
-                                <td>{{Symbol}}</td>
-                            </tr>
-                            <tr>
-                                <td>Official Full Name</td>
-                                <td>{{fullname}}</td>
-                            </tr>
+            {% if entrez_id %}
+            <p></p>
+            <h1>{{Symbol}}</h1>
+            <h3>  {{fullname}}</h3>
+            <h2 class=" section-title" id ="BasicInformation">Basic Information</h2>
+            <div >
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Official Symbol</td>
+                            <td>{{Symbol}}</td>
+                        </tr>
+                        <tr>
+                            <td>Official Full Name</td>
+                            <td>{{fullname}}</td>
+                        </tr>
 
-                            <tr>
-                                <td>Aliases</td>
-                                <td>{{Aliases}}</td>
-                            </tr>
-                        </tbody>
-                    
-                    <table class="table table-striped">
-                        <tbody>
-                            <thead>
-                                <tr>
-                                    <th>Data Base</th>
-                                    <th>ID</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            
-                            <tr>
-                                <td>Entrez Gene ID</td>
-                                <td>{{geneid}}</td>
-                                <td><a href="https://www.ncbi.nlm.nih.gov/gene/{{geneid}}">https://www.ncbi.nlm.nih.gov/gene/{{geneid}}</a></td>
-                            </tr>
-
-                            <tr>
-                                <td>Homogene ID</td>
-                                <td>{{homologeneid}}</td>
-                                <td><a href="https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}">https://www.ncbi.nlm.nih.gov/homologene/?term={{homologeneid}}</a></td>
-                            </tr>
-
-                            <tr>
-                                <td>Uniprot</td>
-                                <td>{{uniprotid}}</td>
-                                <td><a href="https://www.uniprot.org/uniprot/{{uniprotid}}">https://www.uniprot.org/uniprot/{{uniprotid}}</a></td>
-                            </tr>
-
-                            <tr>
-                                <td>OMIM</td>
-                                <td>{{OMIM_ID}}</td>
-                                <td><a href="{{OMIM_link}}">{{OMIM_link}}</a></td>                    
-                            </tr>
-
-                            <tr>
-                                <td>MGI</td>
-                                <td>{{mgi_acc_id}}</td>
-                                <td><a href="http://www.informatics.jax.org/marker/{{homologeneid}}">http://www.informatics.jax.org/marker/{{homologeneid}}</a></td>
-                            </tr>
-
-                        </tbody>
-                    
-                    </table>
-                    <h2 class="section-title">Summary</h2>
-                    <p>from Uniprot</p>
-                    <p>{{function}}</p>
-                </div>
-
-                <h2 class="section-title" id ="Homology">Homology</h2>
-                <p>from NCBI Homologene</p>
-                <div >
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Human vs</th>
-                                <th>Protein</th>
-                                <th>DNA</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Mouse</td>
-                                <td>{{Identity_Protein_Mouse}}%</td>
-                                <td>{{Identity_DNA_Mouse}}%</td>
-                            </tr>
-                            <tr>
-                                <td>Rat</td>
-                                <td>{{Identity_Protein_Rat}}%</td>
-                                <td>{{Identity_DNA_Rat}}%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                </div>
-
-                <! -- BaseSpace -->
-                <h2 class="section-title" id="GeneExpression">Gene Expression</h2>
-                <p>from BaseSpace</p>
+                        <tr>
+                            <td>Aliases</td>
+                            <td>{{Aliases}}</td>
+                        </tr>
+                    </tbody>
                 
-                {%for param_name, BaseSpase_result_df in BaseSpase_result.items() %}
-                    {% if BaseSpase_result_df.empty %}
-                    <p>BaseSpace Body Atlas doesn't support your query term</p>
-                    {% else %}
-                    <div >
-                            <canvas id={{param_name}} width="400" height="400"></canvas>
+                <table class="table table-striped">
+                    <tbody>
+                        <thead>
+                            <tr>
+                                <th>Data Base</th>
+                                <th>ID</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        
+                        <tr>
+                            <td>Entrez Gene ID</td>
+                            <td>{{ids['entrez']}}</td>
+                            <td><a href="https://www.ncbi.nlm.nih.gov/gene/{{entrez_id}}">https://www.ncbi.nlm.nih.gov/gene/{{ids['entrez']}}</a></td>
+                        </tr>
+
+                        <tr>
+                            <td>Ensemnl Gene ID</td>
+                            <td>{{ids['ensembl']}}</td>
+                            <td><a href="http://www.ensembl.org/id/{{ids['ensembl']}}">http://www.ensembl.org/id/{{ids['ensembl']}}</a></td>
+                        </tr>
+
+                        <tr>
+                            <td>Homogene ID</td>
+                            <td>{{ids['homologene']}}</td>
+                            <td><a href="https://www.ncbi.nlm.nih.gov/homologene/{{ids['homologene']}}">https://www.ncbi.nlm.nih.gov/homologene/{{ids['homologene']}}</a></td>
+                        </tr>
+
+                        <tr>
+                            <td>Uniprot</td>
+                            <td>{{ids['uniprot']}}</td>
+                            <td><a href="https://www.uniprot.org/uniprot/{{ids['uniprot']}}">https://www.uniprot.org/uniprot/{{ids['uniprot']}}</a></td>
+                        </tr>
+
+                        <tr>
+                            <td>OMIM</td>
+                            <td>{{ids['omim']}}</td>
+                            <td><a href="{{links['omim']}}">{{links['omim']}}</a></td>                    
+                        </tr>
+
+                        <tr>
+                            <td>MGI</td>
+                            <td>{{ids['mgi']}}</td>
+                            <td><a href="{{links['mgi']}}">{{links['mgi']}}</a></td>
+                        </tr>
+
+                        <tr>
+                            <td>Open Target Platform</td>
+                            <td></td>
+                            <td><a href="https://www.targetvalidation.org/target/{{links['ensembl']}}/associations">https://www.targetvalidation.org/target/{{links['ensembl']}}/associations</a></td>
+                        </tr>
+
+                    </tbody>
+                
+                </table>
+            </div>
+
+            <h2 class="section-title">Summary</h2>
+            <p>from Uniprot</p>
+            <p>{{function}}</p>
+
+            <h2 class="section-title" id="Domain">Domain</h2>
+            <p>from Uniprot</p>
+            <div class="row">
+                <div class="col-12">
+                    <div id="chart_domain" class="chart">
                     </div>
-                    <! -- Cell type figure -->
-                    <script>
-                        var ctx = document.getElementById("{{param_name}}").getContext('2d');
-                        var myChart = new Chart(ctx, {
-                            type: 'horizontalBar',
-                            data: {
-                                labels: [{%for index, row in BaseSpase_result_df.iterrows() %}
-                                            "{{row["conceptLabel"]}}",
-                                        {% endfor %}],
-                                datasets: [{
-                                    label: '{{" ".join(param_name.split("_"))}} Expression Level',
-                                    data: [{%for index, row in BaseSpase_result_df.iterrows() %}
-                                            {{row["tissueExpression"]}},
-                                        {% endfor %}
-                                    ],
-                                    backgroundColor: [
-                                        {%for i in range(BaseSpase_result_len) %}
-                                            'rgba(54, 162, 235, 0.2)',
-                                        {% endfor %}
-                                    ],
-                                    borderColor: [
-                                        {%for i in range(BaseSpase_result_len) %}
-                                            'rgba(54, 162, 235, 1)',
-                                        {% endfor %}
-                                    ],
-                                    borderWidth: 1,
-                                    errorBars: {
-                                        {%for index, row in BaseSpase_result_df.iterrows() %}
-                                            "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
-                                        {% endfor %}
-                                    }
-                                }],
-                            },
-                            options: {
-                                plugins: {
-                                    chartJsPluginBarchartBackground: {
-                                        color: '#eeeeee'
-                                    }, chartJsPluginErrorBars: {
-                                        //color: '#666'
-                                        width: '30%'
-                                    }
-                                },
-                                scales: {
-                                    xAxes: [{
-                                        position:"top",
-                                        ticks: {
-                                            beginAtZero: true
-                                        }
-                                    }],
-                                    yAxes:[{
-                                        barPercentage: 0.5,
-                                        ticks: {
-                                        fontSize: 18,
-                                        }
-                                    }]
-                                },
-                                responsive: true,
-                                title: {
-                                    display: true,
-                                    text: '{{" ".join(param_name.split("_"))}} Expression Level',
-                                    fontSize: 24,
-                                    fontWeight:'normal',
-                                    fontStyle:'normal',
-                                    fontColor:'rgb(51,51,51)',
-                                },
-                                legend: {
-                                    fontWeight:'normal',
-                                    display: false,
-                                    <!--fontSize: 22,-->
-                                },
-                                tooltips: {
-                                    mode: 'index',
-                                    intersect: true
-                                },
-                                annotation: {
-                                    annotations: [{
-                                        type: 'line',
-                                        mode: 'vertical',
-                                        scaleID: 'x-axis-0',
-                                        value: {{BaseSpase_result_df.iloc[0,3]}},
-                                        borderColor: 'rgba(255, 159, 64, 0.5)',
-                                        borderWidth: 4,
-                                        label: {
-                                            position: 'bottom',
-                                            xAdjust: -75,
-                                            yAdjust: 0,
-                                            enabled: true,
-                                            backgroundColor: 'rgba(255, 159, 64, 0.8)',
-                                            content: 'Control Expression: {{ BaseSpase_result_df.iloc[0,3]|float|round(1) }}'
-                                        }
-                                    }]
-                                }
+                </div>
+            </div>
+
+            <h2 class="section-title" id ="Homology">Homology</h2>
+            <p>from NCBI Homologene</p>
+            <div >
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Human vs</th>
+                            <th>Protein</th>
+                            <th>DNA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mouse</td>
+                            <td>{{sequence_homologies['identity_protein_mouse']}}%</td>
+                            <td>{{sequence_homologies['identity_dna_mouse']}}%</td>
+                        </tr>
+                        <tr>
+                            <td>Rat</td>
+                            <td>{{sequence_homologies['identity_protein_rat']}}%</td>
+                            <td>{{sequence_homologies['identity_dna_rat']}}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+
+            <h2 class="section-title" id="GeneExpression">Gene Expression</h2>
+            <p>from Expression Atlas</p>
+            <div id="highchartsContainer"></div>
+            <script>
+                expressionAtlasHeatmapHighcharts.render(
+                  {
+                    target: 'highchartsContainer',
+                    query: {
+                      species: 'homo sapiens',
+                      gene: '{{ids["ensembl"]}}'
+                    },
+                    atlasUrl: 'https://www.ebi.ac.uk/gxa/',
+                    disableGoogleAnalytics: true
+                  }
+                );
+            </script>
+            
+            <! -- BaseSpace -->
+            <h2 class="section-title" id="GeneExpression">Gene Expression</h2>
+            <p>from BaseSpace</p>
+
+            {% if basespase_result['CELL_TYPE'].empty %}
+            <p>BaseSpace Body Atlas doesn't support your query term</p>
+            {% else %}
+            <div class="row">
+                <div class="col-sm-4">
+                    <canvas id=TISSUE_ARRAY_BASED width="200" height="300"></canvas>
+                </div>
+                <div class="col-sm-4">
+                    <canvas id=TISSUE_RNA-SEQ_BASED width="200" height="300"></canvas>
+                </div>
+                <div class="col-sm-4">
+                    <canvas id=CELL_TYPE width="200" height="300"></canvas>
+                </div>
+            </div>
+            <! -- Cell type script -->
+            <script>
+                var ctx = document.getElementById("CELL_TYPE").getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: [{% for index, row in basespase_result['CELL_TYPE'].iterrows() %}
+                                    "{{row["conceptLabel"]}}",
+                                {% endfor %}],
+                        datasets: [{
+                            label: 'Cell Type Expression Level',
+                            data: [{%for index, row in basespase_result['CELL_TYPE'].iterrows() %}
+                                    {{row["tissueExpression"]}},
+                                {% endfor %}
+                            ],
+                            backgroundColor: [
+                                {%for i in range(basespase_result['CELL_TYPE']|length) %}
+                                    'rgba(54, 162, 235, 0.2)',
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {%for i in range(basespase_result['CELL_TYPE']|length) %}
+                                    'rgba(54, 162, 235, 1)',
+                                {% endfor %}
+                            ],
+                            borderWidth: 1,
+                            errorBars: {
+                                {%for index, row in basespase_result['CELL_TYPE'].iterrows() %}
+                                    "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
+                                {% endfor %}
                             }
-                        });
-                    </script>
-                    
-                    {% endif %}
-                {% endfor %}
+                        }],
+                    },
+                    options: {
+                        plugins: {
+                            chartJsPluginBarchartBackground: {
+                                color: '#eeeeee'
+                            }, chartJsPluginErrorBars: {
+                                //color: '#666'
+                                width: '30%'
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                position:"top",
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }],
+                            yAxes:[{
+                                barPercentage: 0.5,
+                                ticks: {
+                                fontSize: 12,
+                                }
+                            }]
+                        },
+                        responsive: true,
+                        title: {
+                            display: true,
+                            text: 'Cell Type Expression Level',
+                            fontSize: 18,
+                            fontWeight:'normal',
+                            fontStyle:'normal',
+                            fontColor:'rgb(51,51,51)',
+                        },
+                        legend: {
+                            fontWeight:'normal',
+                            display: false,
+                            <!--fontSize: 22,-->
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true
+                        },
+                        annotation: {
+                            annotations: [{
+                                type: 'line',
+                                mode: 'vertical',
+                                scaleID: 'x-axis-0',
+                                value: {{basespase_result['CELL_TYPE'].iloc[0,3]}},
+                                borderColor: 'rgba(255, 159, 64, 0.5)',
+                                borderWidth: 4,
+                                label: {
+                                    position: 'bottom',
+                                    xAdjust: -75,
+                                    yAdjust: 0,
+                                    enabled: true,
+                                    backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                    content: 'Control Expression: {{ basespase_result['CELL_TYPE'].iloc[0,3]|float|round(1) }}'
+                                }
+                            }]
+                        }
+                    }
+                });
+            </script>
+            <! -- Cell type script end -->
+
+            <! -- TISSUE_ARRAY_BASED script -->
+            <script>
+                var ctx = document.getElementById("TISSUE_ARRAY_BASED").getContext('2d');
+
+                var myChart = new Chart(ctx, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: [{% for index, row in basespase_result['TISSUE_ARRAY_BASED'].iterrows() %}
+                                    "{{row["conceptLabel"]}}",
+                                {% endfor %}],
+                        datasets: [{
+                            label: 'Tissue Array Based Expression Level',
+                            data: [{%for index, row in basespase_result['TISSUE_ARRAY_BASED'].iterrows() %}
+                                    {{row["tissueExpression"]}},
+                                {% endfor %}
+                            ],
+                            backgroundColor: [
+                                {%for i in range(basespase_result['TISSUE_ARRAY_BASED']|length) %}
+                                    'rgba(54, 162, 235, 0.2)',
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {%for i in range(basespase_result['TISSUE_ARRAY_BASED']|length) %}
+                                    'rgba(54, 162, 235, 1)',
+                                {% endfor %}
+                            ],
+                            borderWidth: 1,
+                            errorBars: {
+                                {%for index, row in basespase_result['TISSUE_ARRAY_BASED'].iterrows() %}
+                                    "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
+                                {% endfor %}
+                            }
+                        }],
+                    },
+                    options: {
+                        plugins: {
+                            chartJsPluginBarchartBackground: {
+                                color: '#eeeeee'
+                            }, chartJsPluginErrorBars: {
+                                //color: '#666'
+                                width: '30%'
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                position:"top",
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }],
+                            yAxes:[{
+                                barPercentage: 0.5,
+                                ticks: {
+                                fontSize: 12,
+                                }
+                            }]
+                        },
+                        responsive: true,
+                        title: {
+                            display: true,
+                            text: 'Tissue Array Based Expression Level',
+                            fontSize: 18,
+                            fontWeight:'normal',
+                            fontStyle:'normal',
+                            fontColor:'rgb(51,51,51)',
+                        },
+                        legend: {
+                            fontWeight:'normal',
+                            display: false,
+                            <!--fontSize: 22,-->
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true
+                        },
+                        annotation: {
+                            annotations: [{
+                                type: 'line',
+                                mode: 'vertical',
+                                scaleID: 'x-axis-0',
+                                value: {{basespase_result['TISSUE_ARRAY_BASED'].iloc[0,3]}},
+                                borderColor: 'rgba(255, 159, 64, 0.5)',
+                                borderWidth: 4,
+                                label: {
+                                    position: 'bottom',
+                                    xAdjust: -75,
+                                    yAdjust: 0,
+                                    enabled: true,
+                                    backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                    content: 'Control Expression: {{ basespase_result['TISSUE_ARRAY_BASED'].iloc[0,3]|float|round(1) }}'
+                                }
+                            }]
+                        }
+                    }
+                });
+            </script>
+            <! -- TISSUE_Array_Based script end -->
+            
+            <! -- TISSUE_RNA-SEQ_BASED script -->
+            <script>
+                var ctx = document.getElementById("TISSUE_RNA-SEQ_BASED").getContext('2d');
+
+                var myChart = new Chart(ctx, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: [{% for index, row in basespase_result['TISSUE_RNA-SEQ_BASED'].iterrows() %}
+                                    "{{row["conceptLabel"]}}",
+                                {% endfor %}],
+                        datasets: [{
+                            label: 'Tissue RNA-seq Based Expression Level',
+                            data: [{%for index, row in basespase_result['TISSUE_RNA-SEQ_BASED'].iterrows() %}
+                                    {{row["tissueExpression"]}},
+                                {% endfor %}
+                            ],
+                            backgroundColor: [
+                                {%for i in range(basespase_result['TISSUE_RNA-SEQ_BASED']|length) %}
+                                    'rgba(54, 162, 235, 0.2)',
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {%for i in range(basespase_result['TISSUE_RNA-SEQ_BASED']|length) %}
+                                    'rgba(54, 162, 235, 1)',
+                                {% endfor %}
+                            ],
+                            borderWidth: 1,
+                            errorBars: {
+                                {%for index, row in basespase_result['TISSUE_RNA-SEQ_BASED'].iterrows() %}
+                                    "{{row["conceptLabel"]}}":{plus: {{row["standardDeviation"]}}, minus: {{row["standardDeviation"]}} },
+                                {% endfor %}
+                            }
+                        }],
+                    },
+                    options: {
+                        plugins: {
+                            chartJsPluginBarchartBackground: {
+                                color: '#eeeeee'
+                            }, chartJsPluginErrorBars: {
+                                //color: '#666'
+                                width: '30%'
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                position:"top",
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }],
+                            yAxes:[{
+                                barPercentage: 0.5,
+                                ticks: {
+                                fontSize: 12,
+                                }
+                            }]
+                        },
+                        responsive: true,
+                        title: {
+                            display: true,
+                            text: 'Tissue RNA-seq Based Expression Level',
+                            fontSize: 18,
+                            fontWeight:'normal',
+                            fontStyle:'normal',
+                            fontColor:'rgb(51,51,51)',
+                        },
+                        legend: {
+                            fontWeight:'normal',
+                            display: false,
+                            <!--fontSize: 22,-->
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true
+                        },
+                        annotation: {
+                            annotations: [{
+                                type: 'line',
+                                mode: 'vertical',
+                                scaleID: 'x-axis-0',
+                                value: {{basespase_result['TISSUE_RNA-SEQ_BASED'].iloc[0,3]}},
+                                borderColor: 'rgba(255, 159, 64, 0.5)',
+                                borderWidth: 4,
+                                label: {
+                                    position: 'bottom',
+                                    xAdjust: -75,
+                                    yAdjust: 0,
+                                    enabled: true,
+                                    backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                    content: 'Control Expression: {{ basespase_result['TISSUE_RNA-SEQ_BASED'].iloc[0,3]|float|round(1) }}'
+                                }
+                            }]
+                        }
+                    }
+                });
+            </script>
+            <! -- TISSUE_RNA-SEQ_BASED script end -->
+            {% endif %}
+
+            <h2 class=" section-title" id="opentarget_genetic_association">Genetic Association</h2>
+            <p>from Open Target Genetics</p>
+            <div >
+                <table id="ot_genetic_association_datatable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Variant Types</th>
+                            <th>Reported Trait</th>
+                            <th>Study</th>
+                            <th>Article</th>
+                            <th>P-value</th>
+                            <th>Locus to Gene Score	</th>
+                            <th>RSID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for _, row in opentarget_genetic_association.iterrows() %}
+                        <tr>
+                            <td><a href={{row['source_links']}}>{{row['ids']}}</a></td>
+                            <td><a href={{row['variant_type_links']}}>{{row['variant_types']}}</a></td>
+                            <td><a href={{row['efo_links']}}>{{row['reported_traits']}}</a></td>
+                            <td><a href={{row['study_links']}}>link</a></td>
+                            <td><a href={{row['study_articles']}}>{{row['study_article_authors']}} {{row['study_article_years']}}</a></td>
+                            <td>{{row['variant2disease_resource_score_values']}}</td>	
+                            <td>{{row['gene2variant_resource_scores']}}</td>
+                            <td><a href=https://www.ebi.ac.uk/gwas/variants/{{row['rs_ids']}}>{{row["rs_ids"]}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
 
-                <h2 class=" section-title" id="GWAS">GWAS</h2>
-                <p>from GWAS Catalog</p>
-                <div >
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>RSID</th>
-                                <th>PubMed ID</th>
-                                <th>Reported Trait</th>
-                                <th>Study Accession</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for index,row in GWAS_catalog.iterrows() %}
-                            <tr>
-                                <td><a href="https://www.ebi.ac.uk/gwas/variants/{{row["rsid"]}}">{{row["rsid"]}}</a></td>
-                                <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row["PubmedID"]}}">{{row["PubmedID"]}}</a></td>
-                                <td>{{row["Reported_Trait"]}}</td>
-                                <td><a href="https://www.ebi.ac.uk/gwas/studies/{{row["Study_Accession"]}}">{{row["Study_Accession"]}}</a></td>
-                                
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% if serverError_occured_GWAS %}
-                    <p>GWAS catalog API Server may be down right now. </p>
-                    <p>Please visit <a href="https://www.ebi.ac.uk/gwas/search?query={{Symbol}}">https://www.ebi.ac.uk/gwas/search?query={{Symbol}}</a></p>
-                    {% endif %}
-                    <!-- {{ GWAS_catalog|safe }}-->
-                    {% if is_gwas_truncated %}
-                    <h3>Caution! Results are Truncated!</h3>
-                    <p>There are so many GWAS results. Please search {{Symbol}} in GWAS for more results. </p>
-                    {% endif %}
+            <h2 class=" section-title" id="MouseModel">Mouse Model</h2>
+            <p>from MGI</p>
+            <div>
+                <table id="mgi_datatable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Allele Composition</th>
+                            <th>Phenotype</th>
+                            <th>PubMed ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for _, row in mgi_table.iterrows() %}
+                        <tr>
+                            <td>{{row[0]}}</td>
+                            <td><a href="http://www.informatics.jax.org/vocab/mp_ontology/{{row[1]}}">{{row[2]}}</a></td>
+                            <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row[3]}}">{{row[3]}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <h2 class=" section-title" id="Drugs">Drugs</h2>
+            <p>from Open Target Platform</p>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div id="chart_ot_clinical_trial" class="chart">
+                    </div>
                 </div>
-
-
-                <h2 class=" section-title" id="MouseModel">Mouse Model</h2>
-                <p>from MGI</p>
-                <div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Allele Composition</th>
-                                <th>Phenotype</th>
-                                <th>PubMed ID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in MGI_table %}
-                            <tr>
-                                <td>{{row[0]}}</td>
-                                <td><a href="http://www.informatics.jax.org/vocab/mp_ontology/{{row[1]}}">{{row[2]}}</a></td>
-                                <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row[3]}}">{{row[3]}}</a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="col-sm-8">
+                    <div id="chart_ot_drug2disease" class="chart">
+                    </div>
                 </div>
+            </div>
+
+            <div>
+                <table id="ot_drug_datatable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Drug Name</th>
+                            <th>Disease</th>
+                            <th>Phase</th>
+                            <th>Status</th>
+                            <th>Mechanism of Action</th>
+                            <th>Molecule Type</th>
+                            <th>Action Type</th>
+                            <th>Activity</th>
+                            <th>Target</th>
+                            <th>Target Class</th>
+                            <th>Evidence curated from</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for _, row in opentarget_drug_table.iterrows() %}
+                        <tr>
+                            <td><a href="{{row['Drug URL']}}">{{row['Drug']}}</a></td>
+                            <td><a href="{{row['Disease URL']}}">{{row['Disease']}}</a></td>
+                            <td>{{row['Phase']}}</td>
+                            <td>{{row['Status']}}</td>
+                            <td>{{row['Mechanism of action']}}</td>
+                            <td>{{row['Drug Molecule Type']}}</td>
+                            <td>{{row['Action type']}}</td>
+                            <td>{{row['Activity']}}</td>
+                            <td>{{row['Target']}}</td>
+                            <td>{{row['Target class']}}</td>
+                            <td><a href="{{row['Clinical trial url']}}">{{row['Evidence curated from']}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% endif %}
 
             
         </div>
     </div>
-
     <!-- jQuery CDN - Slim version (=without AJAX) -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <!-- Popper.JS -->
@@ -428,6 +734,63 @@
     <!-- jQuery Custom Scroller CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 
+    
+
+
+    <!-- DataTable CDN -->
+    <script src="https://code.jquery.com/jquery-1.12.4.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+
+    <script  type="text/javascript">
+        $(document).ready(function() {
+            $('#mgi_datatable').DataTable();
+        } );
+    </script>
+
+    <script  type="text/javascript">
+        $(document).ready(function() {
+            $('#ot_genetic_association_datatable').DataTable();
+        } );
+    </script>
+
+    <script  type="text/javascript">
+        $(document).ready(function() {
+            $('#ot_drug_datatable').DataTable();
+        } );
+    </script>
+
+    <!-- D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+ 
+    <script type="text/javascript">
+         
+        var graphs = {{chart_ot_clinical_trial | safe}};
+        
+        Plotly.plot('chart_ot_clinical_trial',graphs,{});        
+ 
+    </script>
+
+    <script type="text/javascript">
+         
+         var graphs = {{chart_ot_drug2disease | safe}};
+         
+         Plotly.plot('chart_ot_drug2disease',graphs,{});        
+  
+     </script>
+
+     <script type="text/javascript">
+         
+         var graphs = {{chart_domain | safe}};
+         
+         Plotly.plot('chart_domain',graphs,{});        
+  
+     </script>
+
+    
+    <!-- Code Below does not work -->
     <script type="text/javascript">
         $(document).ready(function () {
             $("#sidebar").mCustomScrollbar({
@@ -441,6 +804,10 @@
             });
         });
     </script>
+    
 </body>
+
+
+
 
 </html>
