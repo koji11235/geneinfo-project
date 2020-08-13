@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request
 
-from GeneInfoGetter import fetch_geneidentifier
-from GeneInfoGetter import fetch_uniprot
-from GeneInfoGetter import fetch_allignment
-from GeneInfoGetter import fetch_gwascatalog
-from GeneInfoGetter import get_mgi_result
-from GeneInfoGetter import fetch_BaseSpace
+# from GeneInfoGetter import fetch_geneidentifier
+# from GeneInfoGetter import fetch_uniprot
+# from GeneInfoGetter import fetch_allignment
+# from GeneInfoGetter import fetch_gwascatalog
+# from GeneInfoGetter import get_mgi_result
+# from GeneInfoGetter import fetch_BaseSpace
+
+from GeneInfo import GeneInfo
 
 app = Flask(__name__)
 
@@ -16,68 +18,44 @@ def index():
 
 @app.route("/result")
 def result():
-    geneid = request.args.get('geneid', '')
+    entrez_id = request.args.get('entrez_id', '')
     #print(geneid)
-    fg_result=fetch_geneidentifier(geneid)
-    Symbol=fg_result["Symbol"]
-    fullname=fg_result["Description"]
-    Aliases=fg_result["Aliases"]
-    uniprotid=fg_result["Uniprot_ID"]
-    OMIM_ID=fg_result["OMIM_ID"]
-    OMIM_link=fg_result["OMIM_link"]
-    homologeneid=fg_result["HomogeneID"]
-    homologene_link=fg_result["Homologene_link"]
-    chromosome=fg_result["chromosome"]
-    GenomeLocation=fg_result["GenomeLocation"]
+    geneinfo = GeneInfo(entrez_id=entrez_id)
+    geneinfo.fetch_mygene()
 
-    uniprot_result=fetch_uniprot(uniprotid)
-    function=uniprot_result["function"]
-    #sequence=uniprot_result["sequence"]
+    geneinfo.fetch_uniprot()
+    geneinfo.fetch_homologene()
 
-    fa_result=fetch_allignment(homologeneid)
-    Identity_Protein_Mouse=fa_result["Identity_Protein_Mouse"]
-    Identity_DNA_Mouse=fa_result["Identity_DNA_Mouse"]
-    Identity_Protein_Rat=fa_result["Identity_Protein_Rat"]
-    Identity_DNA_Rat=fa_result["Identity_DNA_Rat"]
-
-    GWAS_result=fetch_gwascatalog(chromosome,GenomeLocation)
-    GWAS_df=GWAS_result[0]
-    is_gwas_truncated=GWAS_result[1]
-    serverError_occured_GWAS=GWAS_result[2]
-
-    MGI_result=get_mgi_result(geneid)
-    mgi_acc_id=MGI_result["mgi_acc_id"]
-    MGI_table=MGI_result["table"]
-
-    BaseSpase_result=fetch_BaseSpace(Symbol)
-    BaseSpase_result_len=14
-    for param_name,BaseSpase_result_df in BaseSpase_result.items():
-        BaseSpase_result[param_name]=BaseSpase_result_df.iloc[0:BaseSpase_result_len,:]
+    geneinfo.fetch_basespace()
     
-    #print(type(BaseSpase_result_df.iloc[0,3]))
+    geneinfo.fetch_opentarget_genetic_association()
+    geneinfo.get_mgi_result()
 
+    geneinfo.fetch_opentarget_drug()
 
-    return render_template("index.html", geneid=geneid,\
-                                        Symbol=Symbol,\
-                                        fullname=fullname,\
-                                        Aliases=Aliases,\
-                                        uniprotid=uniprotid,\
-                                        OMIM_ID=OMIM_ID,\
-                                        OMIM_link=OMIM_link,\
-                                        homologeneid=homologeneid,\
-                                        function=function,\
-                                        #sequence=sequence,\
-                                        Identity_Protein_Mouse=Identity_Protein_Mouse,\
-                                        Identity_DNA_Mouse=Identity_DNA_Mouse,\
-                                        Identity_Protein_Rat=Identity_Protein_Rat,\
-                                        Identity_DNA_Rat=Identity_DNA_Rat,\
-                                        GWAS_catalog=GWAS_df,\
-                                        is_gwas_truncated=is_gwas_truncated,
-                                        serverError_occured_GWAS=serverError_occured_GWAS,
-                                        mgi_acc_id=mgi_acc_id,\
-                                        MGI_table=MGI_table,\
-                                        BaseSpase_result=BaseSpase_result,\
-                                        BaseSpase_result_len=BaseSpase_result_len
+    # create charts -----------------------------------
+    chart_ot_clinical_trial = geneinfo.plot_ot_clinical_trial_pie()
+    chart_ot_drug2disease = geneinfo.plot_ot_drug2disease()
+    chart_domain = geneinfo.plot_domains()
+
+    return render_template("index.html", entrez_id=entrez_id,
+                                        Symbol=geneinfo.symbol,
+                                        fullname=geneinfo.fullname,
+                                        Aliases=', '.join(geneinfo.aliases),
+                                        ids=geneinfo.ids,
+                                        links=geneinfo.links,
+                                        function=geneinfo.uniprot_result['function'],
+                                        #sequence=sequence,
+
+                                        sequence_homologies=geneinfo.sequence_homologies,
+                                        opentarget_genetic_association=geneinfo.opentarget_genetic_association_table,
+                                        mgi_table=geneinfo.mgi_result_table,
+                                        basespase_result=geneinfo.basespase_result,
+                                        opentarget_drug_table=geneinfo.opentarget_drug_table,
+                                        # figs -------------------------------------------------------
+                                        chart_ot_clinical_trial=chart_ot_clinical_trial,
+                                        chart_ot_drug2disease=chart_ot_drug2disease,
+                                        chart_domain=chart_domain
                                         )
 
 
