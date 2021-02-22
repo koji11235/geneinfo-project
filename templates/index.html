@@ -249,6 +249,11 @@
 
             <h2 class="section-title" id="Domain">Domain</h2>
             <p>from Uniprot</p>
+
+            {% if is_domainplot_omitted %}
+            <p>Due to the very large number of domains, only {{MAX_PLOT_NUM_DOMAINS}} domains are shown</p>
+            {% endif %}
+
             <div class="row">
                 <div class="col-12">
                     <div id="chart_domain" class="chart">
@@ -660,7 +665,7 @@
                     <tbody>
                         {% for _, row in mgi_table.iterrows() %}
                         <tr>
-                            <td>{{row[0]}}</td>
+                            <td>{{row[0]|safe}}</td>
                             <td><a href="http://www.informatics.jax.org/vocab/mp_ontology/{{row[1]}}">{{row[2]}}</a></td>
                             <td><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{row[3]}}">{{row[3]}}</a></td>
                         </tr>

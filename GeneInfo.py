@@ -44,8 +44,6 @@ class GeneInfo(object):
         self.fullname = None
         self.aliases = None
 
-
-
         self.uniprot_result = {}
         self.alignment = {}
         self.basespase_result = {}
@@ -53,6 +51,9 @@ class GeneInfo(object):
         self.opentarget_genetic_association_table = pd.DataFrame() #column namesはoutputと統一させる
         self.opentarget_drug_table = pd.DataFrame() #column namesはoutputと統一させる
         self.mgi_result_table = pd.DataFrame() #column namesはoutputと統一させる
+
+        # Plot parameters
+        self.MAX_PLOT_NUM_DOMAINS = 50
 
         # 情報を取得してきたかどうかのフラグだけど必要ない？
         # self._is_geneidentifier_fetched = False
@@ -79,7 +80,11 @@ class GeneInfo(object):
 
         self.symbol = mygene_response['symbol']
         self.fullname = mygene_response['name']
-        self.aliases = mygene_response['alias'] if type(mygene_response['alias']) is list else [mygene_response['alias']]
+        alias = mygene_response.get('alias', '')
+        self.aliases = alias if type(alias) is list else [alias]
+        #self.aliases = mygene_response['alias'] if type(mygene_response['alias']) is list else [mygene_response['alias']]
+
+
         self.ids['ensembl'] = mygene_response['ensembl']['gene']
 
         self.ids['uniprot'] = mygene_response['uniprot']['Swiss-Prot']
@@ -336,6 +341,8 @@ class GeneInfo(object):
         self.mgi_result_table = pd.DataFrame(table, columns=['alele_composition', 'mammalian_phenotype_id', 'phenotype', 'pubmed_id'])
         self.mgi_result_table['mammalian_phenotype_link'] = 'http://www.informatics.jax.org/vocab/mp_ontology/' + self.mgi_result_table['mammalian_phenotype_id']
         self.mgi_result_table['pubmed_link'] = 'https://www.ncbi.nlm.nih.gov/pubmed/' + self.mgi_result_table['pubmed_id']
+        self.mgi_result_table['alele_composition'] = self.mgi_result_table['alele_composition'].str.translate(str.maketrans({'<': '<sup>', '>': '</sup>'}))
+
 
 
 
@@ -490,7 +497,8 @@ class GeneInfo(object):
             'Phase', 'Status', 
             'Mechanism of action', 'Drug Molecule Type', 'Action type', 'Activity', 
             'Target', 'Target class', 
-            'Evidence curated from', 'Clinical trial url']
+            'Evidence curated from', 'Clinical trial url'
+        ]
 
         self.opentarget_drug_table = pd.DataFrame(
                 data={
@@ -677,8 +685,20 @@ class GeneInfo(object):
             showlegend=False
             )
         )
+        # def get_length(domain):
+        #     return int(domain['end']) - int(domain['begin'])
+        
+        domains_to_plot = sorted(
+            self.uniprot_result['domains'], 
+            key=lambda domain: int(domain['end']) - int(domain['begin']),
+            reverse=True
+        )
+        if len(domains_to_plot) >= self.MAX_PLOT_NUM_DOMAINS:
+            self.is_domainplot_omitted = True
+        else:
+            self.is_domainplot_omitted = False
 
-        for i, domain in enumerate(self.uniprot_result['domains']):
+        for i, domain in enumerate(domains_to_plot[:self.MAX_PLOT_NUM_DOMAINS]):
             begin = int(domain['begin'])
             end = int(domain['end'])
             #annotation_y = 1 if (i ％ 2) == 1　else -1
@@ -699,12 +719,12 @@ class GeneInfo(object):
                     showlegend=False
                 )
             ).add_annotation(
-                    x=(begin + end)/2,
-                    y=-1.3,
-                    xref="x",
-                    yref="y",
-                    text=f"{domain['type']}",
-                    showarrow=False,
+                x=(begin + end)/2,
+                y=-1.3,
+                xref="x",
+                yref="y",
+                text=f"{domain['type']}",
+                showarrow=False,
             )
 
         fig.update_layout(
