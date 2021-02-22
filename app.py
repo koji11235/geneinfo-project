@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request
-
-# from GeneInfoGetter import fetch_geneidentifier
-# from GeneInfoGetter import fetch_uniprot
-# from GeneInfoGetter import fetch_allignment
-# from GeneInfoGetter import fetch_gwascatalog
-# from GeneInfoGetter import get_mgi_result
-# from GeneInfoGetter import fetch_BaseSpace
-
 from GeneInfo import GeneInfo
 
 app = Flask(__name__)
